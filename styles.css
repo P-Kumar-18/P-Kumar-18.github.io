@@ -319,12 +319,12 @@ h2 {
 #journey { background: var(--bg); }
 .timeline { margin-top: 1rem; padding-left: 1.5rem; position: relative; }
 .timeline::before {
-    content: ''; position: absolute; left: 0; top: 0.4rem; bottom: 0; width: 1px;
+    content: ''; position: absolute; left: 4px; top: 0.38rem; bottom: 0; width: 1px;
     background: linear-gradient(to bottom, var(--teal), rgba(45,212,191,0.08));
 }
 .tl-item { position: relative; padding: 0 0 2.8rem 2.2rem; }
 .tl-item::before {
-    content: ''; position: absolute; left: -1.56rem; top: 0.35rem;
+    content: ''; position: absolute; left: -1.5rem; top: 0.38rem;
     width: 10px; height: 10px; border-radius: 50%;
     background: var(--bg); border: 2px solid var(--dim); transition: all 0.3s;
 }
