@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>DEV://PORTFOLIO</title>
+    <!-- GitHub Pages SPA fallback: encode the requested path and bounce to index.html -->
+    <script>
+      (function () {
+        var segmentCount = 0 // custom domain / root deploy => 0
+        var l = window.location
+        var path = l.pathname
+          .split("/")
+          .slice(0, 1 + segmentCount)
+          .join("/")
+        var rest = l.pathname
+          .split("/")
+          .slice(1 + segmentCount)
+          .join("/")
+        l.replace(
+          l.protocol +
+            "//" +
+            l.host +
+            path +
+            "/?/" +
+            rest.replace(/&/g, "~and~") +
+            (l.search ? "&" + l.search.slice(1).replace(/&/g, "~and~") : "") +
+            l.hash,
+        )
+      })()
+    </script>
+  </head>
+  <body></body>
+</html>
