@@ -1,6 +1,7 @@
 import { useState } from "react"
 import { socials, contactEmail } from "../data.js"
 import { PressButton, Panel, SectionLabel } from "../components/ui.jsx"
+const FORMSPREE_ENDPOINT = "https://formspree.io/f/mlgpgzan"
 
 function Field({ label, children }) {
   return (
@@ -15,20 +16,33 @@ const inputClass =
   "w-full border-2 border-foreground bg-background px-3 py-2 font-mono text-sm text-foreground placeholder:text-muted focus:bg-surface/10"
 
 export default function Contact() {
-  const [sent, setSent] = useState(false)
+  const [status, setStatus] = useState("idle") // idle | sending | sent | error
   const [form, setForm] = useState({ name: "", email: "", message: "" })
 
   function update(key) {
     return (e) => setForm((f) => ({ ...f, [key]: e.target.value }))
   }
 
-  function onSubmit(e) {
+  async function onSubmit(e) {
     e.preventDefault()
-    // Static site: no backend. Hand off to the user's mail client.
-    const subject = encodeURIComponent(`Portfolio ping from ${form.name || "someone"}`)
-    const body = encodeURIComponent(`${form.message}\n\n— ${form.name} (${form.email})`)
-    window.location.href = `mailto:${contactEmail}?subject=${subject}&body=${body}`
-    setSent(true)
+    setStatus("sending")
+
+    try {
+      const res = await fetch(FORMSPREE_ENDPOINT, {
+        method: "POST",
+        headers: { Accept: "application/json" },
+        body: new FormData(e.target),
+      })
+
+      if (res.ok) {
+        setStatus("sent")
+        setForm({ name: "", email: "", message: "" })
+      } else {
+        setStatus("error")
+      }
+    } catch {
+      setStatus("error")
+    }
   }
 
   return (
@@ -44,12 +58,15 @@ export default function Contact() {
         <Panel tint="background" className="p-5">
           <div className="mb-4 flex items-center justify-between border-b-2 border-foreground pb-2">
             <span className="font-pixel text-xs uppercase text-foreground">NEW MESSAGE</span>
-            <span className="font-mono text-[10px] text-muted">{sent ? "◉ SENT" : "○ DRAFT"}</span>
+            <span className="font-mono text-[10px] text-muted">
+              {status === "sent" ? "◉ SENT" : status === "sending" ? "○ SENDING…" : status === "error" ? "✕ FAILED" : "○ DRAFT"}
+            </span>
           </div>
 
           <form className="grid gap-4" onSubmit={onSubmit}>
             <Field label="YOUR NAME">
               <input
+                name="name"
                 className={inputClass}
                 value={form.name}
                 onChange={update("name")}
@@ -59,6 +76,7 @@ export default function Contact() {
             </Field>
             <Field label="EMAIL">
               <input
+                name="email"
                 className={inputClass}
                 type="email"
                 value={form.email}
@@ -69,6 +87,7 @@ export default function Contact() {
             </Field>
             <Field label="MESSAGE">
               <textarea
+                name="message"
                 className={inputClass + " min-h-32 resize-y"}
                 value={form.message}
                 onChange={update("message")}
@@ -78,12 +97,15 @@ export default function Contact() {
             </Field>
 
             <div className="flex items-center gap-3">
-              <PressButton type="submit" variant="solid">
-                ▶ SEND
+              <PressButton type="submit" variant="solid" disabled={status === "sending"}>
+                {status === "sending" ? "SENDING…" : "▶ SEND"}
               </PressButton>
-              {sent && (
-                <span className="stat-reveal font-mono text-xs text-teal">
-                  opening your mail client…
+              {status === "sent" && (
+                <span className="stat-reveal font-mono text-xs text-teal">got it — talk soon.</span>
+              )}
+              {status === "error" && (
+                <span className="stat-reveal font-mono text-xs text-red-600">
+                  something broke — email me directly instead.
                 </span>
               )}
             </div>
